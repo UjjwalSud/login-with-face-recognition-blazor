@@ -1,0 +1,22 @@
+﻿@page "/register"
+@using System.Text.Json;
+
+
+<h3>Register</h3>
+
+<EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Username:</label>
+        <InputText @bind-Value="registerModel.UserName" />
+    </div>
+    @*  <div>
+    <label>UserId (Base64):</label>
+    <InputText @bind-Value="registerModel.UserId" />
+    </div> *@
+    <button type="submit">Register</button>
+</EditForm>
+
+ 

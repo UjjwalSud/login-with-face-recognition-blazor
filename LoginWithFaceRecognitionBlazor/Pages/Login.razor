@@ -1,0 +1,18 @@
+﻿@page "/login"
+
+<h3>Login</h3>
+
+<EditForm Model="@user" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Username:</label>
+        <InputText @bind-Value="user.Username" />
+        <ValidationMessage For="@(() => user.Username)" />
+    </div>
+
+    <button type="submit">Login</button>
+</EditForm>
+
+ 

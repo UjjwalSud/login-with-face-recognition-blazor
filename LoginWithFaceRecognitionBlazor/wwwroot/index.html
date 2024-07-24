@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoginWithFaceRecognitionBlazor</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="LoginWithFaceRecognitionBlazor.styles.css" rel="stylesheet" />
+    <link href="manifest.webmanifest" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+    <script>
+        async function initiateWebAuthn(optionsJson, dotNetHelper) {
+            const options = JSON.parse(optionsJson);
+
+            // Configure the WebAuthn API options
+            const credentialCreationOptions = {
+                publicKey: {
+                    challenge: Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0)),
+                    rp: {
+                        name: options.rp.name
+                    },
+                    user: {
+                        id: Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0)),
+                        name: options.user.name,
+                        displayName: options.user.displayName
+                    },
+                    pubKeyCredParams: options.pubKeyCredParams.map(param => ({
+                        type: param.type,
+                        alg: param.alg
+                    })),
+                    timeout: options.timeout,
+                    attestation: options.attestation,
+                    authenticatorSelection: options.authenticatorSelection
+                }
+            };
+
+            try {
+                const credential = await navigator.credentials.create(credentialCreationOptions);
+
+                // Prepare the credential response to send to the server
+                const credentialResponse = {
+                    id: credential.id,
+                    type: credential.type,
+                    rawId: btoa(String.fromCharCode.apply(null, new Uint8Array(credential.rawId))),
+                    response: {
+                        attestationObject: btoa(String.fromCharCode.apply(null, new Uint8Array(credential.response.attestationObject))),
+                        clientDataJSON: btoa(String.fromCharCode.apply(null, new Uint8Array(credential.response.clientDataJSON)))
+                    }
+                };
+
+                //// Send the credential response to your server for verification
+                //dotNetHelper.invokeMethodAsync('ProcessRegistration', JSON.stringify(credentialResponse));
+                dotNetHelper.invokeMethodAsync('ProcessRegistration', credentialResponse);
+
+
+
+                const data = await response.json();
+                console.log('Server response:', data);
+            } catch (error) {
+                console.error('Error creating credential:', error);
+            }
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
+</body>
+
+</html>
